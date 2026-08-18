@@ -4,3 +4,4 @@ echo ".env" >> .gitignore
 echo "backend/input_invoices/*" >> .gitignore
 echo "__pycache__/" >> .gitignore
 echo "*.db" >> .gitignore
+echo "instructive/" >> .gitignore
