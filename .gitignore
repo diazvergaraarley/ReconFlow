@@ -5,3 +5,5 @@ backend/input_invoices/*
 __pycache__/
 *.db
 instructive/
+node_modules/
+.env

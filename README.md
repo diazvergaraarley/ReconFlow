@@ -1,4 +1,3 @@
-Markdown
 # ReconFlow: Extractor y Reconciliador de Facturas con IA
 
 Bienvenido al repositorio central de **ReconFlow**. Este sistema automatiza la ingesta, extracción y validación de facturas (PDF/Imágenes) utilizando Google Gemini 1.5, FastAPI y React.
@@ -73,6 +72,11 @@ cd backend
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+⚠️ MUY IMPORTANTE (Variables de Entorno):
+Antes de correr el servidor, debes crear un archivo llamado exactamente .env dentro de la carpeta backend. Pide la API Key por interno al equipo y pégala así (sin comillas ni espacios):
+
+Plaintext
+GEMINI_API_KEY=AIzaSyTuClaveAqui...
 Paso 3: Configurar el Frontend
 Abre una nueva pestaña de terminal en la raíz del proyecto (ReconFlow/) y ejecuta:
 
@@ -80,7 +84,32 @@ Bash
 cd frontend
 npm install
 npm run dev
-👥 2. Responsabilidades del Equipo
+🔌 2. Endpoints y Conexión Frontend (Para Mauricio)
+El Backend y la Inteligencia Artificial ya están 100% funcionales. Para que el Frontend pueda consumir los datos y procesar PDFs, debes levantar el servidor local.
+
+Con el entorno virtual de Python activado en la carpeta backend, ejecuta:
+
+Bash
+uvicorn main:app --reload
+Una vez levantado, la API estará disponible en http://127.0.0.1:8000. Tienes las siguientes rutas para conectar React:
+
+GET /api/facturas:
+
+Retorna un Array de objetos JSON con todas las facturas de la base de datos.
+
+Uso sugerido: Llenar la tabla principal del Dashboard.
+
+GET /api/facturas/{numero_factura}:
+
+Retorna el detalle de una factura específica.
+
+POST /api/facturas/procesar:
+
+Recibe un archivo (PDF/Imagen) usando FormData con la llave archivo. La IA lo procesa en tiempo real y retorna el JSON estructurado con su estado de reconciliación.
+
+Uso sugerido: Para el Dropzone / Botón de "Subir Factura" en la UI.
+
+👥 3. Responsabilidades del Equipo
 Arley (Backend & Scrum Master)
 
 Responsabilidad: FastAPI, SQLite/SQLAlchemy, Folder Watcher y orquestación.
@@ -97,29 +126,16 @@ Mauricio (Frontend Lead)
 
 Responsabilidad: Dashboard en React + Tailwind (v4) y visualización de anomalías.
 
-Recurso Clave: Maquetar la tabla de datos y las tarjetas utilizando la estructura del archivo P4_Facturas_Finanzas.xlsx como fuente de verdad para el diseño, sin esperar a que la API esté lista.
+Recurso Clave: Consumir las rutas de la API mencionadas arriba para construir la UI.
 
-🏃‍♂️ 3. Plan de Sprint (3 Días)
-Gracias a la herramienta mock_generator provista, ya tenemos los datos de prueba y el esquema definido.
+🏃‍♂️ 4. Plan de Sprint (Estado Actual)
+✅ Parte 1 y 2 (Backend e IA) COMPLETADAS: La base de datos se autocompleta con el Excel, Gemini procesa imágenes/PDFs extrayendo el JSON, y el Watcher/API logran conciliar los montos, calculando estados como "Conciliado", "Discrepancia detectada" o "Sin registro contable".
 
-Parte 1: Sembrado de Datos y Contratos (Trabajo Paralelo)
-Arley: Escribir un script (database.py) que lea el archivo P4_Facturas_Finanzas.xlsx y lo inserte automáticamente en SQLite para simular nuestro sistema contable ya poblado. Exponer esto en un Endpoint de FastAPI.
+⏳ Parte 3: UX y Entregables Gerenciales (En Progreso)
 
-Jesús: Escribir el script de IA (ai_extractor.py) importando el esquema de models.py. El objetivo es pasarle un PDF a Gemini y lograr que devuelva un JSON que coincida al 100% con los campos del Excel.
+Mauricio: Implementar tabla de facturas y alertas visuales dependiendo del estado que devuelva la API. Implementar botón para subir archivos hacia el endpoint POST.
 
-Mauricio: Construir la UI estática. Puedes exportar unas cuantas filas de P4_Facturas_Finanzas.xlsx a formato JSON y usarlas directamente en React para maquetar la tabla y los estados (Pendiente, Procesado, Discrepancia detectada).
-
-Parte 2: Integración del Core (Reconciliación)
-Arley & Jesús: Conectar el Folder Watcher. Cuando caiga un PDF nuevo, pasarlo al script de Jesús, obtener el JSON, y buscar en la base de datos (SQLite) si los montos coinciden. Actualizar el estado de reconciliación según el resultado.
-
-Arley & Mauricio: Conectar el Frontend a FastAPI. Mauricio cambia su JSON estático por peticiones fetch reales al puerto 8000.
-
-Parte 3: UX y Entregables Gerenciales
-Mauricio: Implementar alertas visuales (ej. pintar la fila de rojo si la API devuelve "Discrepancia detectada").
-
-Jesús: Manejo de casos de borde (imágenes de baja calidad, facturas sin NIT).
-
-Arley: Redactar los Entregables (Diagrama de Arquitectura, Matriz de Riesgos y DoD) demostrando la eficiencia del uso de SQLite y Gemini.
+Arley/Jesús: Redactar los Entregables (Diagrama de Arquitectura, Matriz de Riesgos y DoD) demostrando la eficiencia del uso de SQLite y Gemini.
 
 🚀 Flujo de Trabajo Diario (Git Flow)
 Descarga los últimos cambios del equipo: git pull origin main

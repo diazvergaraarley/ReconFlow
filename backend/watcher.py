@@ -29,18 +29,34 @@ class FacturaEventHandler(FileSystemEventHandler):
     def procesar_factura(self, ruta_archivo):
         print(f"[WATCHER] 🚀 Pasando el control al Pipeline de IA...")
         
-        # =================================================================
-        # 🚧 ZONA DE INTEGRACIÓN PARA EL SPRINT (Día 2)
-        # =================================================================
-        # Aquí es donde conectaremos el trabajo de IA Y BACKEND:
-        #
-        # 1. from ai_extractor import extraer_datos_factura
-        # 2. json_ia = extraer_datos_factura(ruta_archivo)
-        # 3. from database import reconciliar_factura
-        # 4. reconciliar_factura(json_ia)
-        # =================================================================
+        # Importamos las herramientas que construimos en el equipo
+        from ai_extractor import extract_invoice_data
+        from database import SessionLocal, reconciliar_factura
         
-        print("[WATCHER] ✅ Simulación terminada. Esperando a integrar `ai_extractor.py`.\n")
+        try:
+            # 1. La IA lee el documento físico
+            print("[WATCHER] 🧠 Gemini está leyendo el documento...")
+            factura_extraida = extract_invoice_data(ruta_archivo)
+            print(f"[WATCHER] 📊 Datos extraídos: Factura {factura_extraida.numero_factura} por {factura_extraida.total_factura_cop} COP")
+            
+            # 2. Abrimos conexión a la base de datos
+            db = SessionLocal()
+            try:
+                # 3. Comparamos contra el sistema contable
+                print("[WATCHER] ⚖️ Reconciliando con la base de datos...")
+                factura_final = reconciliar_factura(db, factura_extraida)
+                
+                # 4. Resultado final
+                if factura_final.estado_reconciliacion == "Conciliado":
+                    print(f"[WATCHER] ✅ ¡ÉXITO! La factura cuadra perfectamente.")
+                else:
+                    print(f"[WATCHER] ❌ ALERTA: {factura_final.estado_reconciliacion.upper()}")
+            finally:
+                # Siempre cerramos la base de datos
+                db.close()
+                
+        except Exception as e:
+            print(f"\n[WATCHER] 💥 Error crítico procesando {ruta_archivo}: {str(e)}\n")
 
 def iniciar_observador():
     # Detectar dinámicamente la carpeta input_invoices

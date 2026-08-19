@@ -21,7 +21,7 @@ if not API_KEY:
 
 genai.configure(api_key=API_KEY)
 
-MODEL_NAME = "gemini-3.5-flash"
+MODEL_NAME = "gemini-3.6-flash"
 
 PROMPT = """
 Eres un motor de extraccion de datos financieros. Analiza la factura adjunta (PDF o imagen)
@@ -51,7 +51,7 @@ class ExtractedInvoiceSchema(BaseModel):
     subtotal_base_cop: float
     impuesto_iva_cop: float
     total_factura_cop: float
-    moneda: str = "COP"
+    moneda: str
 
 
 def extract_invoice_data(file_path: Union[str, Path]) -> FacturaSchema:

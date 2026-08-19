@@ -100,3 +100,5 @@ def reconciliar_factura(db, factura_extraida: FacturaSchema) -> FacturaDB:
 # Bloque de prueba: Si ejecutas este archivo directamente, inicializará la BD.
 if __name__ == "__main__":
     init_db()
+    
+    
