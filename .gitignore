@@ -1,7 +1,7 @@
-echo ".venv/" >> .gitignore
-echo "node_modules/" >> .gitignore
-echo ".env" >> .gitignore
-echo "backend/input_invoices/*" >> .gitignore
-echo "__pycache__/" >> .gitignore
-echo "*.db" >> .gitignore
-echo "instructive/" >> .gitignore
+.venv/
+node_modules/
+.env
+backend/input_invoices/*
+__pycache__/
+*.db
+instructive/

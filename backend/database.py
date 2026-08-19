@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Base, FacturaDB
+from models import Base, FacturaDB, FacturaSchema
 
 # 1. Configuración de la conexión SQLite
 # SQLite guardará todo en un archivo local llamado reconflow.db
@@ -64,6 +64,38 @@ def get_db():
         yield db
     finally:
         db.close()
+
+# 4. Reconciliación: contrasta una factura extraída por Gemini contra el sistema contable
+def reconciliar_factura(db, factura_extraida: FacturaSchema) -> FacturaDB:
+    """
+    Busca en SQLite la factura sembrada desde el Excel contable y la compara
+    contra los datos que la IA extrajo del PDF/imagen.
+
+    - Si el número de factura no existe en el sistema contable: "Sin registro contable".
+    - Si el total coincide (tolerancia de 1 COP por redondeos): "Conciliado".
+    - Si el total no coincide: "Discrepancia detectada".
+    """
+    TOLERANCIA_COP = 1.0
+
+    factura_db = (
+        db.query(FacturaDB)
+        .filter(FacturaDB.numero_factura == factura_extraida.numero_factura)
+        .first()
+    )
+
+    if factura_db is None:
+        factura_db = FacturaDB(**factura_extraida.model_dump())
+        factura_db.estado_reconciliacion = "Sin registro contable"
+        db.add(factura_db)
+    else:
+        diferencia = abs(factura_db.total_factura_cop - factura_extraida.total_factura_cop)
+        factura_db.estado_reconciliacion = (
+            "Conciliado" if diferencia <= TOLERANCIA_COP else "Discrepancia detectada"
+        )
+
+    db.commit()
+    db.refresh(factura_db)
+    return factura_db
 
 # Bloque de prueba: Si ejecutas este archivo directamente, inicializará la BD.
 if __name__ == "__main__":

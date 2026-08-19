@@ -1,9 +1,14 @@
-from fastapi import FastAPI, Depends
+import shutil
+import tempfile
+from pathlib import Path
+
+from fastapi import FastAPI, Depends, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
 from contextlib import asynccontextmanager
-from database import init_db, get_db
+from ai_extractor import extract_invoice_data
+from database import init_db, get_db, reconciliar_factura
 from models import FacturaDB, FacturaSchema
 
 # 1. Ciclo de vida de la app: Inicializar la base de datos al arrancar
@@ -51,3 +56,24 @@ def obtener_factura_por_numero(numero_factura: str, db: Session = Depends(get_db
     """
     factura = db.query(FacturaDB).filter(FacturaDB.numero_factura == numero_factura).first()
     return factura
+
+@app.post("/api/facturas/procesar", response_model=FacturaSchema)
+async def procesar_factura(archivo: UploadFile = File(...), db: Session = Depends(get_db)):
+    """
+    Recibe un PDF/imagen de factura, la envía a Gemini para extraer sus datos
+    y concilia el resultado contra el sistema contable sembrado en SQLite.
+    Este es el endpoint que usará el Folder Watcher cada vez que caiga un archivo nuevo.
+    """
+    sufijo = Path(archivo.filename).suffix
+    with tempfile.NamedTemporaryFile(delete=False, suffix=sufijo) as tmp:
+        shutil.copyfileobj(archivo.file, tmp)
+        ruta_temporal = Path(tmp.name)
+
+    try:
+        factura_extraida = extract_invoice_data(ruta_temporal)
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail=f"No se pudo extraer la factura: {exc}")
+    finally:
+        ruta_temporal.unlink(missing_ok=True)
+
+    return reconciliar_factura(db, factura_extraida)
