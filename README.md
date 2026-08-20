@@ -65,8 +65,8 @@ cd backend
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-En Mac / Linux:
 
+En Mac / Linux:
 Bash
 cd backend
 python3 -m venv .venv

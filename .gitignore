@@ -6,4 +6,3 @@ __pycache__/
 *.db
 instructive/
 node_modules/
-.env
