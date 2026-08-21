@@ -13,7 +13,7 @@
     "lucide-react": "^1.33.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-dropzone": "^20.1.0",
+    "react-dropzone": "^20.1.1",
     "react-router-dom": "^7.18.2"
   },
   "devDependencies": {

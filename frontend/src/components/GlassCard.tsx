@@ -9,7 +9,7 @@ interface GlassCardProps {
 
 /**
  * Componente: GlassCard
- * Contenedor estilizado con refracción, efecto cristal y físicas de inclinación 3D.
+ * Contenedor estilizado con refracción, efecto cristal y físicas de inclinación 3D (Suavizadas).
  */
 const GlassCard: React.FC<GlassCardProps> = ({ 
   children, 
@@ -27,8 +27,11 @@ const GlassCard: React.FC<GlassCardProps> = ({
     const mouseY = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    const rotateX = ((mouseY - centerY) / centerY) * -6; 
-    const rotateY = ((mouseX - centerX) / centerX) * 6;
+    
+    // 🔥 EL SECRETO ESTABA AQUÍ: Bajamos el multiplicador de 6 a 1.5
+    const rotateX = ((mouseY - centerY) / centerY) * -1.5; 
+    const rotateY = ((mouseX - centerX) / centerX) * 1.5;
+    
     setMouseData({ x: mouseX, y: mouseY, rotateX, rotateY });
   }, []);
 
@@ -56,7 +59,8 @@ const GlassCard: React.FC<GlassCardProps> = ({
       onMouseLeave={handleMouseLeave}
       className={`relative overflow-hidden ${className}`}
       style={{
-        transform: `perspective(1000px) rotateX(${mouseData.rotateX}deg) rotateY(${mouseData.rotateY}deg) scale3d(${isHovered ? 1.02 : 1}, ${isHovered ? 1.02 : 1}, 1)`,
+        // 🔥 TAMBIÉN AQUÍ: Bajamos el scale3d de 1.02 a 1.005 para que no "salte" hacia la pantalla
+        transform: `perspective(1000px) rotateX(${mouseData.rotateX}deg) rotateY(${mouseData.rotateY}deg) scale3d(${isHovered ? 1.005 : 1}, ${isHovered ? 1.005 : 1}, 1)`,
         transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease',
         transformStyle: 'preserve-3d',
         backgroundColor: bgColor,

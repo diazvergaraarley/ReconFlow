@@ -77,3 +77,55 @@ async def procesar_factura(archivo: UploadFile = File(...), db: Session = Depend
         ruta_temporal.unlink(missing_ok=True)
 
     return reconciliar_factura(db, factura_extraida)
+
+# ==========================================
+# ENDPOINT DE CARGA MASIVA 
+# ==========================================
+@app.post("/api/facturas/lote")
+async def procesar_lote_excel(archivo: UploadFile = File(...), db: Session = Depends(get_db)):
+    """Recibe un archivo Excel y puebla la base de datos de forma masiva sin usar IA."""
+    import pandas as pd
+    import io
+
+    if not archivo.filename.lower().endswith('.xlsx'):
+        raise HTTPException(status_code=400, detail="Formato inválido. Sube un archivo .xlsx")
+
+    try:
+        contenido = await archivo.read()
+        buffer = io.BytesIO(contenido)
+        df = pd.read_excel(buffer)
+        
+        # Limpiamos espacios invisibles
+        df.columns = df.columns.str.strip()
+        
+        
+        if "numero_factura" not in df.columns:
+            columnas_reales = ", ".join(list(df.columns))
+            raise ValueError(f"No se encontró 'numero_factura'. El archivo tiene estas columnas: {columnas_reales}")
+
+        nuevos_registros = 0
+        for _, row in df.iterrows():
+            existe = db.query(FacturaDB).filter(FacturaDB.numero_factura == str(row["numero_factura"])).first()
+            if not existe:
+                nueva = FacturaDB(
+                    numero_factura=str(row["numero_factura"]),
+                    fecha_emision=str(row["fecha_emision"]),
+                    entidad_razon_social=str(row["entidad_razon_social"]),
+                    nit_proveedor=str(row["nit_proveedor"]),
+                    concepto_operacion=str(row["concepto_operacion"]),
+                    subtotal_base_cop=float(row["subtotal_base_cop"]),
+                    impuesto_iva_cop=float(row["impuesto_iva_cop"]),
+                    total_factura_cop=float(row["total_factura_cop"]),
+                    moneda=str(row["moneda"]),
+                    estado_reconciliacion=str(row.get("estado_reconciliacion", "Pendiente"))
+                )
+                db.add(nueva)
+                nuevos_registros += 1
+                
+        db.commit()
+        return {"mensaje": f"Carga masiva exitosa: {nuevos_registros} facturas nuevas registradas."}
+        
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        raise HTTPException(status_code=400, detail=f"Error leyendo Excel: {str(e)}")
