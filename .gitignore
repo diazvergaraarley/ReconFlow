@@ -1,9 +1,18 @@
-.venv/
-node_modules/
-.env
-backend/input_invoices/*
-__pycache__/
-*.db
-instructive/
-node_modules/
-.env
+# OS / macOS
+.DS_Store
+.DS_Store?
+._*
+.Trashes
+
+# Backend (Python / FastAPI)
+backend/.venv/
+backend/__pycache__/
+*.pyc
+backend/reconflow.db
+
+# Frontend (React / Node)
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.vite-temp/
+npm-debug.log*

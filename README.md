@@ -1,149 +1,64 @@
-# ReconFlow: Extractor y Reconciliador de Facturas con IA
+# 📊 ReconFlow: Auditoría y Reconciliación Inteligente
 
-Bienvenido al repositorio central de **ReconFlow**. Este sistema automatiza la ingesta, extracción y validación de facturas (PDF/Imágenes) utilizando Google Gemini 1.5, FastAPI y React.
+ReconFlow es una plataforma Full-Stack B2B diseñada para automatizar la extracción, validación y reconciliación de facturas financieras. Utiliza Inteligencia Artificial multimodal para procesar documentos heterogéneos y un motor de base de datos para detectar discrepancias contables en tiempo real.
+
+## 📑 Ficha Técnica
+* **Rol:** Lead Técnico / Full-Stack Developer
+* **Frontend:** React, Vite, Tailwind CSS, Lucide React (UI/UX *Liquid Glass*).
+* **Backend:** Python, FastAPI, SQLAlchemy (SQLite).
+* **Inteligencia Artificial:** Google Gemini (Procesamiento Multimodal / Zero-Shot).
+* **Arquitectura:** Cliente-Servidor con Pipeline de Ingesta Masiva y filtrado de alto rendimiento (DOM Repaint Optimization).
 
 ---
 
-## 🚨 PASO 0: CLONAR EL REPOSITORIO Y CAMBIAR DE RAMA (¡OBLIGATORIO!)
+## 💻 Instrucciones de Ejecución (Paso a Paso)
 
-La rama `main` está **ESTRICTAMENTE PROTEGIDA Y BLOQUEADA**. Si empiezas a trabajar y hacer *commits* en la rama `main`, GitHub rechazará tus cambios y no podrás subir tu código.
+Sigue estas instrucciones en tu terminal para clonar y correr el proyecto en tu entorno local.
 
-Lo primero que debes hacer es clonar el proyecto en tu computadora y pasarte **inmediatamente** a tu rama asignada. 
-
-**1. Abre tu terminal y ejecuta esto para descargar el proyecto:**
+### 1. Clonar el repositorio
 ```bash
-git clone [https://github.com/diazvergaraarley/ReconFlow.git](https://github.com/diazvergaraarley/ReconFlow.git)
-cd ReconFlow
-2. Copia y pega ÚNICAMENTE el comando que te corresponde según tu rol:
+git clone [https://github.com/TU_USUARIO/reconflow.git](https://github.com/TU_USUARIO/reconflow.git)
+cd reconflow
 
-Para Arley (Backend Lead):
+2. Configurar el Backend (FastAPI)
+Abre una terminal nueva y ejecuta los siguientes comandos para crear el entorno virtual, instalar dependencias e iniciar el servidor:
 
-Bash
-git checkout backend-arley
-Para Jesús (AI & Data Pipeline):
-
-Bash
-git checkout ia-jesus
-Para Mauricio (Frontend Lead):
-
-Bash
-git checkout frontend-mauricio
-(Asegúrate de que la terminal diga que cambiaste a la rama correctamente antes de continuar con las instalaciones).
-
-⚙️ 1. Configuración de Entorno (Instalaciones)
-Para evitar errores de versiones, sigue las instrucciones correspondientes a tu sistema operativo.
-
-💡 Nota sobre Python: En los siguientes pasos, si usas Windows, el comando base suele ser python. Si usas Mac o Linux, el comando es python3.
-
-Paso 1: Instalar Motores Base (Node.js y Python)
-En Windows (Recomendado vía Winget - Rápido y sin errores de PATH):
-Abre tu terminal (PowerShell o CMD como administrador) y ejecuta:
-
-Bash
-winget install OpenJS.NodeJS
-winget install Python.Python.3.11
-(Reinicia tu terminal después de instalarlos).
-
-En Mac (Vía Homebrew):
-
-Bash
-brew install node
-brew install python
-En Linux (Ubuntu/Debian):
-
-Bash
-sudo apt update
-sudo apt install nodejs npm
-sudo apt install python3 python3-venv python3-pip
-Paso 2: Configurar el Backend y Entorno Virtual (VENV)
-El backend requiere un entorno aislado. Abre la terminal en la raíz del proyecto (ReconFlow/) y ejecuta:
-
-En Windows:
-
-Bash
 cd backend
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-En Mac / Linux:
 
-Bash
-cd backend
+# Crear y activar entorno virtual (Mac/Linux)
 python3 -m venv .venv
 source .venv/bin/activate
+# (Si usas Windows: .venv\Scripts\activate)
+
+# Instalar dependencias
 pip install -r requirements.txt
-⚠️ MUY IMPORTANTE (Variables de Entorno):
-Antes de correr el servidor, debes crear un archivo llamado exactamente .env dentro de la carpeta backend. Pide la API Key por interno al equipo y pégala así (sin comillas ni espacios):
 
-Plaintext
-GEMINI_API_KEY=AIzaSyTuClaveAqui...
-Paso 3: Configurar el Frontend
-Abre una nueva pestaña de terminal en la raíz del proyecto (ReconFlow/) y ejecuta:
+⚠️ Importante (Variables de Entorno):
+Antes de correr el servidor, crea un archivo llamado .env dentro de la carpeta backend y agrega tu llave de Google Gemini:
+GEMINI_API_KEY=tu_llave_aqui
 
-Bash
-cd frontend
-npm install
-npm run dev
-🔌 2. Endpoints y Conexión Frontend (Para Mauricio)
-El Backend y la Inteligencia Artificial ya están 100% funcionales. Para que el Frontend pueda consumir los datos y procesar PDFs, debes levantar el servidor local.
-
-Con el entorno virtual de Python activado en la carpeta backend, ejecuta:
-
-Bash
+# Iniciar el servidor backend
 uvicorn main:app --reload
-Una vez levantado, la API estará disponible en http://127.0.0.1:8000. Tienes las siguientes rutas para conectar React:
 
-GET /api/facturas:
+El servidor correrá en http://127.0.0.1:8000
 
-Retorna un Array de objetos JSON con todas las facturas de la base de datos.
+3. Configurar el Frontend (React)
+Abre otra terminal nueva, separada de la del backend:
 
-Uso sugerido: Llenar la tabla principal del Dashboard.
+cd frontend
 
-GET /api/facturas/{numero_factura}:
+# Instalar los paquetes de Node
+npm install
 
-Retorna el detalle de una factura específica.
+# Levantar la interfaz de usuario
+npm run dev
 
-POST /api/facturas/procesar:
+La aplicación web estará disponible en http://localhost:5173
 
-Recibe un archivo (PDF/Imagen) usando FormData con la llave archivo. La IA lo procesa en tiempo real y retorna el JSON estructurado con su estado de reconciliación.
+🧪 Cómo usar la aplicación
+Carga por IA: Arrastra un archivo .pdf, .jpg o .png al área de carga. El sistema consumirá Gemini para extraer los datos y los reconciliará con la base de datos.
 
-Uso sugerido: Para el Dropzone / Botón de "Subir Factura" en la UI.
+Carga Masiva (Data Histórica): Arrastra un archivo .xlsx. El sistema eludirá la IA e inyectará los registros directamente a la base de datos sin consumir tokens.
 
-👥 3. Responsabilidades del Equipo
-Arley (Backend & Scrum Master)
+Auditoría: Navega a la pestaña de Auditoría para ver los estados (Conciliado, Discrepancia, Sin Registro) y utiliza la barra lateral para un filtrado cruzado de alto rendimiento.
 
-Responsabilidad: FastAPI, SQLite/SQLAlchemy, Folder Watcher y orquestación.
-
-Recurso Clave: Usar el archivo backend/input_invoices/P4_Facturas_Finanzas.xlsx para poblar la base de datos inicial.
-
-Jesús (AI & Data Pipeline)
-
-Responsabilidad: Integración con Gemini y Prompts de extracción.
-
-Recurso Clave: Forzar a Gemini a devolver el JSON estructurado basándose exactamente en las columnas del archivo backend/input_invoices/P4_Facturas_Finanzas.xlsx y el modelo Pydantic en models.py.
-
-Mauricio (Frontend Lead)
-
-Responsabilidad: Dashboard en React + Tailwind (v4) y visualización de anomalías.
-
-Recurso Clave: Consumir las rutas de la API mencionadas arriba para construir la UI.
-
-🏃‍♂️ 4. Plan de Sprint (Estado Actual)
-✅ Parte 1 y 2 (Backend e IA) COMPLETADAS: La base de datos se autocompleta con el Excel, Gemini procesa imágenes/PDFs extrayendo el JSON, y el Watcher/API logran conciliar los montos, calculando estados como "Conciliado", "Discrepancia detectada" o "Sin registro contable".
-
-⏳ Parte 3: UX y Entregables Gerenciales (En Progreso)
-
-Mauricio: Implementar tabla de facturas y alertas visuales dependiendo del estado que devuelva la API. Implementar botón para subir archivos hacia el endpoint POST.
-
-Arley/Jesús: Redactar los Entregables (Diagrama de Arquitectura, Matriz de Riesgos y DoD) demostrando la eficiencia del uso de SQLite y Gemini.
-
-🚀 Flujo de Trabajo Diario (Git Flow)
-Descarga los últimos cambios del equipo: git pull origin main
-
-Asegúrate de estar en tu rama: git checkout <tu-rama>
-
-Trabaja y guarda tus cambios: git commit -m "feat: agrega script de poblamiento db"
-
-Sube tu rama a GitHub: git push
-
-Ve a la página de GitHub y abre un Pull Request hacia la rama main.
